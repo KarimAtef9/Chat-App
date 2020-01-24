@@ -51,28 +51,30 @@ public class ChatsFragment extends Fragment {
         userChatsList = new ArrayList<>();
         userAdapter = new UserAdapter(getContext(), new ArrayList<User>(), true);
 
-//        databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                usersIds.clear();
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Message message = snapshot.getValue(Message.class);
-//                    if (message.getSender().equals(firebaseUser.getUid())) {
-//                        usersIds.add(message.getReceiver());
-//                    }
-//                    if (message.getReceiver().equals(firebaseUser.getUid())) {
-//                        usersIds.add(message.getSender());
-//                    }
-//                }
-//                readMessages();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
+        /*
+        databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                usersIds.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Message message = snapshot.getValue(Message.class);
+                    if (message.getSender().equals(firebaseUser.getUid())) {
+                        usersIds.add(message.getReceiver());
+                    }
+                    if (message.getReceiver().equals(firebaseUser.getUid())) {
+                        usersIds.add(message.getSender());
+                    }
+                }
+                readMessages();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+         */
 
         databaseReference = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid());
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -92,7 +94,6 @@ public class ChatsFragment extends Fragment {
 
             }
         });
-
 
         chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -137,45 +138,45 @@ public class ChatsFragment extends Fragment {
         });
     }
 
+/*
+    private void readMessages() {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                users.clear();
+                userAdapter.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User user = snapshot.getValue(User.class);
+                    // check if current user is a friend with mUser
+                    for (String id : usersIds) {
+                        if (user.getId().equals(id)) {
+                            if (users.size() != 0) {
+                                //check if that chat hasn't already added
+                                for (User user1 : users) {
+                                    if (!user.getId().equals(user1.getId())) {
+                                        users.add(user);
+                                    }
+                                }
 
-//    private void readMessages() {
-//        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-//        databaseReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                users.clear();
-//                userAdapter.clear();
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    User user = snapshot.getValue(User.class);
-//                    // check if current user is a friend with mUser
-//                    for (String id : usersIds) {
-//                        if (user.getId().equals(id)) {
-//                            if (users.size() != 0) {
-//                                //check if that chat hasn't already added
-//                                for (User user1 : users) {
-//                                    if (!user.getId().equals(user1.getId())) {
-//                                        users.add(user);
-//                                    }
-//                                }
-//
-//                            } else {
-//                                users.add(user);
-//                            }
-//                        }
-//                    }
-//                }
-//                if (users != null && !users.isEmpty()) {
-//                    userAdapter.addAll(users);
-//                    Log.v("ChatsFragment.java", "Users adapter updated in onDataChange");
-//                }
-//                chatsListView.setAdapter(userAdapter);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
+                            } else {
+                                users.add(user);
+                            }
+                        }
+                    }
+                }
+                if (users != null && !users.isEmpty()) {
+                    userAdapter.addAll(users);
+                    Log.v("ChatsFragment.java", "Users adapter updated in onDataChange");
+                }
+                chatsListView.setAdapter(userAdapter);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+*/
 }
