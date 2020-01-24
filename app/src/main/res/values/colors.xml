@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#c60606</color>
+    <color name="colorPrimaryDark">#AA0505</color>
+    <color name="colorAccent">#f82020</color>
+
+    <color name="clickable_fragment">#A89D88</color>
+    <color name="send_off">#CED4EB</color>
+    <color name="right">#FFA8A8</color>
+    <color name="left">#FA5C5C</color>
+</resources>
