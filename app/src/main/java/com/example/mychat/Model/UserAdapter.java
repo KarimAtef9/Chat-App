@@ -94,6 +94,8 @@ public class UserAdapter extends ArrayAdapter<User> {
             chatId += lastUser.getId();
             chatId += currentUser.getUid();
         }
+
+        // getting last message from the chat
         final DatabaseReference databaseReference =
                 FirebaseDatabase.getInstance().getReference("Chats").child(chatId);
         databaseReference.addValueEventListener(new ValueEventListener() {
