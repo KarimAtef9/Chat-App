@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,18 +19,28 @@ import com.bumptech.glide.Glide;
 import com.example.mychat.Model.Message;
 import com.example.mychat.Model.MessageAdapter;
 import com.example.mychat.Model.User;
+import com.example.mychat.Notifications.APIService;
+import com.example.mychat.Notifications.Data;
+import com.example.mychat.Notifications.MyResponse;
+import com.example.mychat.Notifications.RetrofitClient;
+import com.example.mychat.Notifications.Sender;
+import com.example.mychat.Notifications.Token;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -46,8 +57,12 @@ public class MessageActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private ArrayList<Message> messages;
     private String chatId = "";
+    String otherUserId;
 
     ValueEventListener seenListener;
+
+    APIService apiService;
+    boolean notify = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,22 +80,26 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
+        // notification
+        apiService = RetrofitClient.getClient("https://fcm.google.eapis.com/").create(APIService.class);
+
         profileImage = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
         sendButton = findViewById(R.id.sendButton);
         messageEditText = findViewById(R.id.messageEditText);
 
         Intent intent= getIntent();
-        final String userId = intent.getStringExtra("UserId");
+        otherUserId = intent.getStringExtra("UserId");
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(otherUserId);
 
-        if (firebaseUser.getUid().compareTo(userId) > 0) {
+        // creating one unique chat id
+        if (firebaseUser.getUid().compareTo(otherUserId) > 0) {
             chatId += firebaseUser.getUid();
-            chatId += userId;
+            chatId += otherUserId;
         } else {
-            chatId += userId;
+            chatId += otherUserId;
             chatId += firebaseUser.getUid();
         }
 
@@ -109,15 +128,16 @@ public class MessageActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                notify = true;
                 String message = messageEditText.getText().toString().trim();
-                sendMessage(firebaseUser.getUid(), userId, message);
-                Log.v("MessageActivity.java", "message sent to user with id : "+ userId);
+                sendMessage(firebaseUser.getUid(), otherUserId, message);
+                Log.v("MessageActivity.java", "message sent to user with id : "+ otherUserId);
                 messageEditText.setText("");
             }
         });
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(otherUserId);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -129,7 +149,7 @@ public class MessageActivity extends AppCompatActivity {
                 } else {
                     Glide.with(getApplicationContext()).load(user.getImageUrl()).into(profileImage);
                 }
-                readMessages(firebaseUser.getUid(), userId);
+                readMessages(firebaseUser.getUid(), otherUserId);
             }
 
             @Override
@@ -142,7 +162,7 @@ public class MessageActivity extends AppCompatActivity {
         messages = new ArrayList<>();
         messageAdapter = new MessageAdapter(this, new ArrayList<Message>());
 
-        seenMessage(userId);
+        seenMessage(otherUserId);
 
     }
 
@@ -169,7 +189,7 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
-    private void sendMessage(String sender, final String receiver, String message) {
+    private void sendMessage(String sender, final String receiver, final String message) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> map = new HashMap<>();
@@ -183,12 +203,30 @@ public class MessageActivity extends AppCompatActivity {
         final DatabaseReference chatRef = FirebaseDatabase.getInstance()
                 .getReference("ChatList").child(firebaseUser.getUid()).child(receiver);
 
+        // adding user2 as a friend in the chats list (if not exists)
         chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     chatRef.child("id").setValue(receiver);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        // to get current username & send notification to other user
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User currentUser = dataSnapshot.getValue(User.class);
+                if (notify)
+                    sendNotification(receiver, currentUser.getUsername(), message);
+                notify = false;
             }
 
             @Override
@@ -215,6 +253,43 @@ public class MessageActivity extends AppCompatActivity {
                     Log.v("MessageActivity.java", "Messages adapter updated in onDataChange");
                 }
                 messagesListView.setAdapter(messageAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendNotification(String receiver, final String username, final String message) {
+        DatabaseReference tokensReference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query = tokensReference.orderByKey().equalTo(receiver);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Token token = snapshot.getValue(Token.class);
+                    Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher,
+                            username + " : " + message, "New Message!", otherUserId);
+                    Sender sender = new Sender(data, token.getToken());
+
+                    apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
+                        @Override
+                        public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                            if (response.code() == 200) {
+                                if (response.body().success != 1) {
+                                    Toast.makeText(MessageActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                        }
+                    });
+                }
             }
 
             @Override

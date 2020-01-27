@@ -13,9 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.mychat.MessageActivity;
-import com.example.mychat.Model.UserChatlist;
 import com.example.mychat.Model.User;
 import com.example.mychat.Model.UserAdapter;
+import com.example.mychat.Model.UserChatlist;
+import com.example.mychat.Notifications.Token;
 import com.example.mychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,9 +25,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
-
 
 public class ChatsFragment extends Fragment {
     private ListView chatsListView;
@@ -105,10 +106,12 @@ public class ChatsFragment extends Fragment {
             }
         });
 
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
         return view;
     }
 
-    public void showChatList() {
+    private void showChatList() {
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -137,6 +140,13 @@ public class ChatsFragment extends Fragment {
             }
         });
     }
+
+    private void updateToken(String token) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1 = new Token(token);
+        reference.child(firebaseUser.getUid()).setValue(token1);
+    }
+
 
 /*
     private void readMessages() {
