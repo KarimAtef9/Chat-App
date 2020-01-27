@@ -1,11 +1,13 @@
 package com.example.mychat.Notifications;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -68,7 +70,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if (firebaseUser != null && sent.equals(firebaseUser.getUid())) {
             Log.d("Messaging Service Class", "Message Received -----------------------------------");
-            sendNotification(remoteMessage);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d("Messaging Service Class", "Oreo Message Received -----------------------------------");
+                sendOreoNotification(remoteMessage);
+            } else {
+                sendNotification(remoteMessage);
+            }
         }
 
     }
@@ -107,4 +114,33 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.d("Messaging Service Class", "Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
     }
+
+    private void sendOreoNotification(RemoteMessage remoteMessage) {
+        String user = remoteMessage.getData().get("user");
+        String body = remoteMessage.getData().get("body");
+        String title = remoteMessage.getData().get("title");
+        String icon = remoteMessage.getData().get("icon");
+
+        RemoteMessage.Notification notification = remoteMessage.getNotification();
+        int j = Integer.parseInt(user.replaceAll("[\\D]", ""));
+        Intent intent = new Intent(this, MessageActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("UserId", user);
+        intent.putExtras(bundle);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        // Flag indicating that this PendingIntent can be used only once (flag one shot)
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, j, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        // Building Oreo Notification
+        OreoNotifications oreoNotifications = new OreoNotifications(this);
+        Notification.Builder builder = oreoNotifications.getOreoNotification(title, body,
+                pendingIntent, defaultSound, icon);
+
+        int i = ((j>0) ? j:0);
+
+        oreoNotifications.getManager().notify(i, builder.build());
+        Log.d("Messaging Service Class", "Oreo Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ---------------------------");
+    }
+
 }
