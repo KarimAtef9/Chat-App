@@ -81,7 +81,7 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         // notification
-        apiService = RetrofitClient.getClient("https://fcm.google.eapis.com/").create(APIService.class);
+        apiService = RetrofitClient.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         profileImage = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
@@ -130,8 +130,8 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View view) {
                 notify = true;
                 String message = messageEditText.getText().toString().trim();
-                sendMessage(firebaseUser.getUid(), otherUserId, message);
                 Log.v("MessageActivity.java", "message sent to user with id : "+ otherUserId);
+                sendMessage(firebaseUser.getUid(), otherUserId, message);
                 messageEditText.setText("");
             }
         });
@@ -224,8 +224,10 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User currentUser = dataSnapshot.getValue(User.class);
-                if (notify)
+                if (notify) {
+                    //Log.d("Message Activity", "Send Notification !!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
                     sendNotification(receiver, currentUser.getUsername(), message);
+                }
                 notify = false;
             }
 
@@ -273,7 +275,7 @@ public class MessageActivity extends AppCompatActivity {
                     Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher,
                             username + " : " + message, "New Message!", otherUserId);
                     Sender sender = new Sender(data, token.getToken());
-
+                    //Log.d("Messaging Activity", "onDataChange SendNotification MessageActivity !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
                     apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {

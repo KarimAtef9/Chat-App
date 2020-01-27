@@ -18,6 +18,8 @@ import com.example.mychat.Model.UserAdapter;
 import com.example.mychat.Model.UserChatlist;
 import com.example.mychat.Notifications.Token;
 import com.example.mychat.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.ArrayList;
 
@@ -106,7 +109,23 @@ public class ChatsFragment extends Fragment {
             }
         });
 
-        updateToken(FirebaseInstanceId.getInstance().getToken());
+
+        // updating token
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("MessagingService", "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String refreshToken = task.getResult().getToken();
+                        Log.v("Chats Fragment", "get refreshed token : " + refreshToken);
+
+                        updateToken(refreshToken);
+                    }
+                });
 
         return view;
     }
@@ -145,6 +164,7 @@ public class ChatsFragment extends Fragment {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
         Token token1 = new Token(token);
         reference.child(firebaseUser.getUid()).setValue(token1);
+        Log.v("ChatsFragment.java", "token updated to : " + token);
     }
 
 
