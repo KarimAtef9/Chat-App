@@ -2,10 +2,10 @@ package com.example.mychat.Notifications;
 
 public class Sender {
     public Data data;
-    public String sendTo;
+    public String to;
 
-    public Sender(Data data, String sendTo) {
+    public Sender(Data data, String to) {
         this.data = data;
-        this.sendTo = sendTo;
+        this.to = to;
     }
 }
