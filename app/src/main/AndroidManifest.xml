@@ -31,9 +31,9 @@
             android:name=".RegisterActivity"
             android:parentActivityName=".StartActivity" />
 
-        <service
-            android:name=".Notifications.MyFirebaseMessagingService"
-            android:exported="false">
+        <service android:name=".Notifications.MyFirebaseMessagingService"
+            android:exported="true"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

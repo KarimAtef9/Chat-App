@@ -19,7 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.mychat.Model.Message;
 import com.example.mychat.Model.MessageAdapter;
 import com.example.mychat.Model.User;
-import com.example.mychat.Notifications.APIService;
+import com.example.mychat.Fragments.APIService;
 import com.example.mychat.Notifications.Data;
 import com.example.mychat.Notifications.MyResponse;
 import com.example.mychat.Notifications.RetrofitClient;

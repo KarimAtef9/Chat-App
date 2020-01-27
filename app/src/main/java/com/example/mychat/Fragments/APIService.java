@@ -1,4 +1,7 @@
-package com.example.mychat.Notifications;
+package com.example.mychat.Fragments;
+
+import com.example.mychat.Notifications.MyResponse;
+import com.example.mychat.Notifications.Sender;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
