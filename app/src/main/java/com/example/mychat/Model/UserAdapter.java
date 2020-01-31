@@ -29,7 +29,6 @@ public class UserAdapter extends ArrayAdapter<User> {
     private Context mContext;
     boolean isChat;
     private Message lastMessage;
-    private int unread = 0;
 
     public UserAdapter(Context context, ArrayList<User> userList, boolean isChat) {
         super(context, 0, userList);
@@ -103,7 +102,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                unread = 0;
+                int unread = 0;
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     Message message = data.getValue(Message.class);
                     lastMessage = message;
@@ -125,8 +124,7 @@ public class UserAdapter extends ArrayAdapter<User> {
 
                 if (unread != 0) {
                     unread_messages.setText(String.valueOf(unread));
-                } else {
-                    unread_messages.setVisibility(View.GONE);
+                    unread_messages.setVisibility(View.VISIBLE);
                 }
 
             }

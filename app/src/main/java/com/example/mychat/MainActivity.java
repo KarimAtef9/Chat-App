@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
+    private int unopenedChats = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-                final int unread[] = {0};
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     UserChatlist currentChat = snapshot.getValue(UserChatlist.class);
                     String uniqueChatId = "";
@@ -107,16 +106,14 @@ public class MainActivity extends AppCompatActivity {
                     // second search in messages of each friend for unseen messages
                     // search in current user chat in chat messages
                     DatabaseReference messagesReference = FirebaseDatabase.getInstance().getReference("Chats").child(uniqueChatId);
-                    Log.d("MainActivity", "check el unique id el generated : " + uniqueChatId);
                     messagesReference.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             for (DataSnapshot snapshot1 : dataSnapshot.getChildren()) {
                                 Message message = snapshot1.getValue(Message.class);
-                                Log.d("MainActivity", "check el message : " + message.getMessage());
                                 if (message.getReceiver().equals(firebaseUser.getUid()) && !message.getSeen()) {
-                                    unread[0]++;
-                                    Log.d("MainActivity", "check el message : " + unread[0]);
+                                    unopenedChats++;
+//                                    Log.d("MainActivity", "check el message : " + unopenedChats);
                                     break;
                                 }
                             }
@@ -132,11 +129,11 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-                Toast.makeText(MainActivity.this, String.valueOf(unread[0]), Toast.LENGTH_SHORT).show();
-                if (unread[0] == 0) {
+                Log.d("MainActivity", "check el message : " + unopenedChats);
+                if (unopenedChats == 0) {
                     viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
                 } else {
-                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread[0]+") Chats");
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unopenedChats+") Chats");
                 }
                 viewPagerAdapter.addFragment(new UsersFragment(), "Users");
                 viewPager.setAdapter(viewPagerAdapter);
