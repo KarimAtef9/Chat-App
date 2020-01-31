@@ -15,7 +15,10 @@ import com.example.mychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
 
@@ -46,6 +49,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         TextView message = listItemView.findViewById(R.id.message);
         message.setText(messages.get(position).getMessage());
+
+        // set time or time and date next to message
+        String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
+        TextView time = listItemView.findViewById(R.id.time);
+        if (messages.get(position).getDate().equals(currentDate)) {
+            // same day
+            time.setText(messages.get(position).getTime());
+        } else {
+            time.setText(messages.get(position).getTime() + " " + messages.get(position).getDate());
+        }
 
         ImageView seen = listItemView.findViewById(R.id.message_seen);
 

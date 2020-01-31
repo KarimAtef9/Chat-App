@@ -21,7 +21,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class UserAdapter extends ArrayAdapter<User> {
     private ArrayList<User> users;
@@ -51,6 +54,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         ImageView status;
         TextView last_message = listItemView.findViewById(R.id.last_message);
         TextView unread_messages = listItemView.findViewById(R.id.unread_number);
+        TextView time = listItemView.findViewById(R.id.time);
 
         User currentUser = users.get(position);
         username.setText(currentUser.getUsername());
@@ -72,20 +76,21 @@ public class UserAdapter extends ArrayAdapter<User> {
                 status = listItemView.findViewById(R.id.img_offline);
                 status.setVisibility(View.VISIBLE);
             }
-            lastMessage(currentUser, last_message, username, unread_messages);
+            lastMessage(currentUser, last_message, username, unread_messages, time);
         } else {
             status = listItemView.findViewById(R.id.img_online);
             status.setVisibility(View.GONE);
             status = listItemView.findViewById(R.id.img_offline);
             status.setVisibility(View.GONE);
             last_message.setVisibility(View.GONE);
+            time.setVisibility(View.GONE);
         }
 
         return listItemView;
     }
 
     // displaying last message & number of unread messages
-    private void lastMessage(User lastUser, final TextView last_message, final TextView username, final TextView unread_messages) {
+    private void lastMessage(User lastUser, final TextView last_message, final TextView username, final TextView unread_messages, final TextView timeTextView) {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String chatId = "";
         if (currentUser.getUid().compareTo(lastUser.getId()) > 0) {
@@ -96,7 +101,7 @@ public class UserAdapter extends ArrayAdapter<User> {
             chatId += currentUser.getUid();
         }
 
-        // getting last message from the chat
+        // getting last message from the chat and its time
         final DatabaseReference databaseReference =
                 FirebaseDatabase.getInstance().getReference("Chats").child(chatId);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -106,6 +111,17 @@ public class UserAdapter extends ArrayAdapter<User> {
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     Message message = data.getValue(Message.class);
                     lastMessage = message;
+                    String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
+                    String date = message.getDate();
+
+                    if (date.equals(currentDate)) {
+                        // message today
+                        timeTextView.setText(message.getTime());
+                    } else {
+                        // message not today ,, give date
+                        timeTextView.setText(message.getTime() + " " + date);
+                    }
+
                     if (message.getReceiver().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
                         unread++;
                     }
@@ -114,6 +130,7 @@ public class UserAdapter extends ArrayAdapter<User> {
                 if (lastMessage.getReceiver().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
                     last_message.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
                     username.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+                    timeTextView.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
                 } else {
                     last_message.setTextColor(getContext().getResources().
                             getColor(R.color.common_google_signin_btn_text_light));

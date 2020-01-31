@@ -2,16 +2,20 @@ package com.example.mychat.Model;
 
 public class Message {
 
-    String sender;
-    String receiver;
-    String message;
-    boolean seen;
+    private String sender;
+    private String receiver;
+    private String message;
+    private boolean seen;
+    private String time;
+    private String date;
 
-    public Message(String sender, String receiver, String message, boolean seen) {
+    public Message(String sender, String receiver, String message, boolean seen, String time, String date) {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
         this.seen = seen;
+        this.time = time;
+        this.date = date;
     }
 
     public Message() {
@@ -48,6 +52,22 @@ public class Message {
 
     public void setSeen(boolean seen) {
         this.seen = seen;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
 }

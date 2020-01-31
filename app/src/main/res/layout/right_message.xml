@@ -8,18 +8,37 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <TextView
+
+
+        <LinearLayout
+            android:id="@+id/message_layout"
             android:layout_width="wrap_content"
-            android:maxWidth="300dp"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:padding="6dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/right_background"
-            android:id="@+id/message"
-            android:textSize="18sp"
-            android:layout_marginEnd="5dp" />
+            android:background="@drawable/right_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:maxWidth="300dp"
+                android:layout_height="wrap_content"
+                android:text="helloooooooooo"
+                android:padding="6dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/right_background"
+                android:id="@+id/message"
+                android:textSize="18sp"
+                android:layout_marginEnd="5dp" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:padding="6dp"
+                android:layout_gravity="bottom"/>
+
+        </LinearLayout>
 
         <ImageView
             android:layout_width="15dp"
@@ -27,9 +46,9 @@
             android:id="@+id/message_seen"
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
-            android:layout_toLeftOf="@+id/message"
+            android:layout_toLeftOf="@+id/message_layout"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/message" />
+            android:layout_toStartOf="@+id/message_layout" />
 
 
     </RelativeLayout>

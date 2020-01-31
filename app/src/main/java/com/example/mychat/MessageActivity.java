@@ -17,10 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.mychat.Fragments.APIService;
 import com.example.mychat.Model.Message;
 import com.example.mychat.Model.MessageAdapter;
 import com.example.mychat.Model.User;
-import com.example.mychat.Fragments.APIService;
 import com.example.mychat.Notifications.Data;
 import com.example.mychat.Notifications.MyResponse;
 import com.example.mychat.Notifications.RetrofitClient;
@@ -35,8 +35,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -193,11 +196,16 @@ public class MessageActivity extends AppCompatActivity {
     private void sendMessage(String sender, final String receiver, final String message) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
+        String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
+        String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
+
         HashMap<String, Object> map = new HashMap<>();
         map.put("sender", sender);
         map.put("receiver", receiver);
         map.put("message", message);
         map.put("seen", false);
+        map.put("date", currentDate);
+        map.put("time", currentTime);
 
         reference.child("Chats").child(chatId).push().setValue(map);
 
