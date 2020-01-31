@@ -50,11 +50,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         ImageView seen = listItemView.findViewById(R.id.message_seen);
 
         // check if last message
-        if (messages.get(position).getSeen()) {
-            seen.setImageResource(R.drawable.ic_seen);
-        } else {
-            seen.setImageResource(R.drawable.ic_not_seen);
+        if (position < messages.size()-1) {
+            // next message seen
+            if (messages.get(position+1).getSeen()) {
+                seen.setImageResource(0);
+            } else { // next message not seen
+                if (messages.get(position).getSeen()) {
+                    seen.setImageResource(R.drawable.ic_seen);
+                } else {
+                    seen.setImageResource(0);
+                }
+            }
+
+        } else { // this is the last message
+            if (messages.get(position).getSeen()) {
+                seen.setImageResource(R.drawable.ic_seen);
+            } else {
+                seen.setImageResource(R.drawable.ic_not_seen);
+            }
         }
+
 
 
         return listItemView;
