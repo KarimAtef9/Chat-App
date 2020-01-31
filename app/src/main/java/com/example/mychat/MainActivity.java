@@ -1,6 +1,7 @@
 package com.example.mychat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-                int unopened = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     UserChatlist currentChat = snapshot.getValue(UserChatlist.class);
                     String uniqueChatId = "";
@@ -118,7 +118,9 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                                 }
                             }
-
+                            SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
+                            editor.putString("unopenedChats",String.valueOf(unopenedChats));
+                            editor.apply();
                         }
 
                         @Override

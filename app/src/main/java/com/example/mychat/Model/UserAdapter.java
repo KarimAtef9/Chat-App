@@ -27,7 +27,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     private ArrayList<User> users;
     // required for getting image
     private Context mContext;
-    boolean isChat;
+    private boolean isChat;
     private Message lastMessage;
 
     public UserAdapter(Context context, ArrayList<User> userList, boolean isChat) {

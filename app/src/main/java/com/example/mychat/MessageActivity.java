@@ -1,6 +1,7 @@
 package com.example.mychat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -317,6 +318,12 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
+    private void otherUser(String otherUserId) {
+        SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
+        editor.putString("otherUserId", otherUserId);
+        editor.apply();
+    }
+
     private void status(String status) {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
@@ -329,6 +336,7 @@ public class MessageActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         status("online");
+        otherUser(otherUserId);
     }
 
     @Override
@@ -336,6 +344,7 @@ public class MessageActivity extends AppCompatActivity {
         super.onPause();
         databaseReference.removeEventListener(seenListener);
         status("offline");
+        otherUser("none");
     }
 
 }

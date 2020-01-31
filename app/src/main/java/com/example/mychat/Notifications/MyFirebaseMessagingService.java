@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -66,15 +67,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         String sent = remoteMessage.getData().get("sent");
+        String otherUser = remoteMessage.getData().get("user");
+
+        SharedPreferences preferences = getSharedPreferences("PREFS", MODE_PRIVATE);
+        String otherUserId = preferences.getString("otherUserId", "none");
+
+
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (firebaseUser != null && sent.equals(firebaseUser.getUid())) {
-            Log.d("Messaging Service Class", "Message Received -----------------------------------");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d("Messaging Service Class", "Oreo Message Received -----------------------------------");
-                sendOreoNotification(remoteMessage);
-            } else {
-                sendNotification(remoteMessage);
+            //Log.d("Messaging Service Class", "Message Received -----------------------------------");
+            if (!otherUserId.equals(otherUser)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    //Log.d("Messaging Service Class", "Oreo Message Received -----------------------------------");
+                    sendOreoNotification(remoteMessage);
+                } else {
+                    sendNotification(remoteMessage);
+                }
             }
         }
 
@@ -112,7 +121,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(i, builder.build());
 
-        Log.d("Messaging Service Class", "Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
+        //Log.d("Messaging Service Class", "Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
     }
 
     private void sendOreoNotification(RemoteMessage remoteMessage) {
@@ -140,7 +149,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         int i = ((j>0) ? j:0);
 
         oreoNotifications.getManager().notify(i, builder.build());
-        Log.d("Messaging Service Class", "Oreo Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ---------------------------");
+        //Log.d("Messaging Service Class", "Oreo Notification done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ---------------------------");
     }
 
 }
