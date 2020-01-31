@@ -202,13 +202,29 @@ public class MessageActivity extends AppCompatActivity {
 
         final DatabaseReference chatRef = FirebaseDatabase.getInstance()
                 .getReference("ChatList").child(firebaseUser.getUid()).child(receiver);
-
         // adding user2 as a friend in the chats list (if not exists)
         chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     chatRef.child("id").setValue(receiver);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        final DatabaseReference chat2Ref = FirebaseDatabase.getInstance()
+                .getReference("ChatList").child(receiver).child(firebaseUser.getUid());
+        // adding user1 as a friend of user2 in the chats list (if not exists)
+        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    chat2Ref.child("id").setValue(firebaseUser.getUid());
                 }
             }
 
