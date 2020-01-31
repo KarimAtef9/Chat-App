@@ -29,6 +29,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     private Context mContext;
     boolean isChat;
     private Message lastMessage;
+    private int unread = 0;
 
     public UserAdapter(Context context, ArrayList<User> userList, boolean isChat) {
         super(context, 0, userList);
@@ -50,6 +51,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         ImageView profileImage = listItemView.findViewById(R.id.profile_image);
         ImageView status;
         TextView last_message = listItemView.findViewById(R.id.last_message);
+        TextView unread_messages = listItemView.findViewById(R.id.unread_number);
 
         User currentUser = users.get(position);
         username.setText(currentUser.getUsername());
@@ -71,8 +73,7 @@ public class UserAdapter extends ArrayAdapter<User> {
                 status = listItemView.findViewById(R.id.img_offline);
                 status.setVisibility(View.VISIBLE);
             }
-            lastMessage(currentUser, last_message, username);
-
+            lastMessage(currentUser, last_message, username, unread_messages);
         } else {
             status = listItemView.findViewById(R.id.img_online);
             status.setVisibility(View.GONE);
@@ -84,7 +85,8 @@ public class UserAdapter extends ArrayAdapter<User> {
         return listItemView;
     }
 
-    public void lastMessage(User lastUser, final TextView last_message, final TextView username) {
+    // displaying last message
+    private void lastMessage(User lastUser, final TextView last_message, final TextView username, final TextView unread_messages) {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String chatId = "";
         if (currentUser.getUid().compareTo(lastUser.getId()) > 0) {
@@ -101,9 +103,13 @@ public class UserAdapter extends ArrayAdapter<User> {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                unread = 0;
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     Message message = data.getValue(Message.class);
                     lastMessage = message;
+                    if (message.getReceiver().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
+                        unread++;
+                    }
                 }
                 last_message.setText(lastMessage.getMessage());
                 if (lastMessage.getReceiver().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
@@ -116,6 +122,12 @@ public class UserAdapter extends ArrayAdapter<User> {
                             getColor(R.color.common_google_signin_btn_text_light));
                 }
                 last_message.setVisibility(View.VISIBLE);
+
+                if (unread != 0) {
+                    unread_messages.setText(String.valueOf(unread));
+                } else {
+                    unread_messages.setVisibility(View.GONE);
+                }
 
             }
 

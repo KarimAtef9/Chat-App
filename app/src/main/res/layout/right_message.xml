@@ -25,7 +25,6 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:id="@+id/message_seen"
-            android:src="@drawable/ic_not_seen"
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
             android:layout_toLeftOf="@+id/message"

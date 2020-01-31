@@ -149,7 +149,7 @@ public class MessageActivity extends AppCompatActivity {
                 } else {
                     Glide.with(getApplicationContext()).load(user.getImageUrl()).into(profileImage);
                 }
-                readMessages(firebaseUser.getUid(), otherUserId);
+                readMessages();
             }
 
             @Override
@@ -255,7 +255,7 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
-    private void readMessages(final String myId, final String userId) {
+    private void readMessages() {
         databaseReference = FirebaseDatabase.getInstance().getReference("Chats").child(chatId);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
