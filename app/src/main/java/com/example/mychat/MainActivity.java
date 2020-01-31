@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+                int unopened = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     UserChatlist currentChat = snapshot.getValue(UserChatlist.class);
                     String uniqueChatId = "";

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity">
+    tools:context=".RegisterActivity"
+    android:background="@color/background">
 
     <include
         layout="@layout/bar_layout"
@@ -53,6 +54,7 @@
             android:layout_height="wrap_content"
             android:text="@string/register"
             android:id="@+id/btn_register"
+            android:textColor="@android:color/white"
             android:background="@color/colorAccent"
             android:layout_margin="10dp"
             android:padding="16dp"

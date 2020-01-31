@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="#e6e6e6"
+    android:background="@color/inside_background"
     tools:context=".MessageActivity">
 
     <com.google.android.material.appbar.AppBarLayout

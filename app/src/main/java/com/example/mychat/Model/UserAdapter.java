@@ -84,7 +84,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         return listItemView;
     }
 
-    // displaying last message
+    // displaying last message & number of unread messages
     private void lastMessage(User lastUser, final TextView last_message, final TextView username, final TextView unread_messages) {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String chatId = "";
