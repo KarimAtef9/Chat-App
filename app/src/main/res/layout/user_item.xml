@@ -37,14 +37,24 @@
         android:layout_height="wrap_content"
         android:id="@+id/last_message"
         android:layout_below="@id/username"
-        android:layout_toRightOf="@id/profile_image"
+        android:layout_toRightOf="@id/seen"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_toEndOf="@id/profile_image"
+        android:layout_toEndOf="@id/seen"
         android:layout_marginStart="10dp"
         android:ellipsize="end"
-        android:maxLines="1"
-        />
+        android:maxLines="1" />
+
+    <ImageView
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:id="@+id/seen"
+        android:layout_below="@id/username"
+        android:layout_toRightOf="@id/profile_image"
+        android:layout_toEndOf="@id/profile_image"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+         />
 
     <TextView
         android:layout_width="wrap_content"

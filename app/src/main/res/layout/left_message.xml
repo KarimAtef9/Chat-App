@@ -22,7 +22,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/message"
             android:textSize="18sp"
-            android:text="helloooooooooooooooooooo"
             android:padding="6dp"
             android:layout_marginLeft="5dp"
             android:layout_marginStart="5dp" />

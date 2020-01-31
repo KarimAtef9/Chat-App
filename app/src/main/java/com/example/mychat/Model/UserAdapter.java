@@ -55,6 +55,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         TextView last_message = listItemView.findViewById(R.id.last_message);
         TextView unread_messages = listItemView.findViewById(R.id.unread_number);
         TextView time = listItemView.findViewById(R.id.time);
+        ImageView seen = listItemView.findViewById(R.id.seen);
 
         User currentUser = users.get(position);
         username.setText(currentUser.getUsername());
@@ -76,7 +77,7 @@ public class UserAdapter extends ArrayAdapter<User> {
                 status = listItemView.findViewById(R.id.img_offline);
                 status.setVisibility(View.VISIBLE);
             }
-            lastMessage(currentUser, last_message, username, unread_messages, time);
+            lastMessage(currentUser, last_message, username, unread_messages, time, seen);
         } else {
             status = listItemView.findViewById(R.id.img_online);
             status.setVisibility(View.GONE);
@@ -84,13 +85,15 @@ public class UserAdapter extends ArrayAdapter<User> {
             status.setVisibility(View.GONE);
             last_message.setVisibility(View.GONE);
             time.setVisibility(View.GONE);
+            seen.setVisibility(View.GONE);
         }
 
         return listItemView;
     }
 
     // displaying last message & number of unread messages
-    private void lastMessage(User lastUser, final TextView last_message, final TextView username, final TextView unread_messages, final TextView timeTextView) {
+    private void lastMessage(User lastUser, final TextView last_message, final TextView username,
+                             final TextView unread_messages, final TextView timeTextView, final ImageView seenView) {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String chatId = "";
         if (currentUser.getUid().compareTo(lastUser.getId()) > 0) {
@@ -131,11 +134,20 @@ public class UserAdapter extends ArrayAdapter<User> {
                     last_message.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
                     username.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
                     timeTextView.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+
                 } else {
                     last_message.setTextColor(getContext().getResources().
                             getColor(R.color.common_google_signin_btn_text_light));
                     username.setTextColor(getContext().getResources().
                             getColor(R.color.common_google_signin_btn_text_light));
+                }
+
+                if (lastMessage.getSender().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
+                    seenView.setImageResource(R.drawable.ic_not_seen);
+                } else if (lastMessage.getSender().equals(currentUser.getUid()) && lastMessage.getSeen()){
+                    seenView.setImageResource(R.drawable.ic_seen);
+                } else {
+                    seenView.setVisibility(View.GONE);
                 }
                 last_message.setVisibility(View.VISIBLE);
 
