@@ -2,9 +2,11 @@ package com.example.mychat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +19,9 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.mychat.Fragments.ChatsFragment;
 import com.example.mychat.Fragments.UsersFragment;
+import com.example.mychat.Model.Message;
 import com.example.mychat.Model.User;
+import com.example.mychat.Model.UserChatlist;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -76,16 +80,80 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        final TabLayout tabLayout = findViewById(R.id.tab_layout);
+        final ViewPager viewPager = findViewById(R.id.view_pager);
 
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
-        viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+        // to count number of friends with unread messages
+        // first enter friends list of current user
+        databaseReference = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid());
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+                final int unread[] = {0};
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    UserChatlist currentChat = snapshot.getValue(UserChatlist.class);
+                    String uniqueChatId = "";
+                    // creating one unique chat id
+                    if (firebaseUser.getUid().compareTo(currentChat.getId()) > 0) {
+                        uniqueChatId += firebaseUser.getUid();
+                        uniqueChatId += currentChat.getId();
+                    } else {
+                        uniqueChatId += currentChat.getId();
+                        uniqueChatId += firebaseUser.getUid();
+                    }
 
-        viewPager.setAdapter(viewPagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+                    // second search in messages of each friend for unseen messages
+                    // search in current user chat in chat messages
+                    DatabaseReference messagesReference = FirebaseDatabase.getInstance().getReference("Chats").child(uniqueChatId);
+                    Log.d("MainActivity", "check el unique id el generated : " + uniqueChatId);
+                    messagesReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot snapshot1 : dataSnapshot.getChildren()) {
+                                Message message = snapshot1.getValue(Message.class);
+                                Log.d("MainActivity", "check el message : " + message.getMessage());
+                                if (message.getReceiver().equals(firebaseUser.getUid()) && !message.getSeen()) {
+                                    unread[0]++;
+                                    Log.d("MainActivity", "check el message : " + unread[0]);
+                                    break;
+                                }
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+
+                    });
+
+
+                }
+                Toast.makeText(MainActivity.this, String.valueOf(unread[0]), Toast.LENGTH_SHORT).show();
+                if (unread[0] == 0) {
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
+                } else {
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread[0]+") Chats");
+                }
+                viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+                viewPager.setAdapter(viewPagerAdapter);
+                tabLayout.setupWithViewPager(viewPager);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+
 
     }
 
