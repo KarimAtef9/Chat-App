@@ -8,14 +8,16 @@ public class Message {
     private boolean seen;
     private String time;
     private String date;
+    private String imageUrl;
 
-    public Message(String sender, String receiver, String message, boolean seen, String time, String date) {
+    public Message(String sender, String receiver, String message, boolean seen, String time, String date, String imageUrl) {
         this.sender = sender;
         this.receiver = receiver;
         this.message = message;
         this.seen = seen;
         this.time = time;
         this.date = date;
+        this.imageUrl = imageUrl;
     }
 
     public Message() {
@@ -68,6 +70,14 @@ public class Message {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
 }

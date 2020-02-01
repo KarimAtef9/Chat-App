@@ -31,6 +31,7 @@ import com.example.mychat.Notifications.MyResponse;
 import com.example.mychat.Notifications.RetrofitClient;
 import com.example.mychat.Notifications.Sender;
 import com.example.mychat.Notifications.Token;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -41,6 +42,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -74,7 +76,7 @@ public class MessageActivity extends AppCompatActivity {
     private String chatId = "";
     String otherUserId;
 
-    private String selectedImageUrl = null;
+    private Uri selectedImageUri = null;
 
     ValueEventListener seenListener;
 
@@ -129,7 +131,7 @@ public class MessageActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.toString().trim().length() > 0 || selectedImageUrl != null) {
+                if (charSequence.toString().trim().length() > 0 || selectedImageUri != null) {
                     sendButton.setEnabled(true);
                     sendButton.setBackgroundResource(R.drawable.ic_send_btn);
                 } else {
@@ -225,13 +227,31 @@ public class MessageActivity extends AppCompatActivity {
         String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
 
-        HashMap<String, Object> map = new HashMap<>();
+        final HashMap<String, Object> map = new HashMap<>();
         map.put("sender", sender);
         map.put("receiver", receiver);
         map.put("message", message);
         map.put("seen", false);
         map.put("date", currentDate);
         map.put("time", currentTime);
+        if (selectedImageUri != null) {
+            final StorageReference photoRef = storageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    photoRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Log.v("MessageActivity.class", "Upload a new Image with url : " + uri.toString());
+                            String imageUrl = uri.toString();
+                            map.put("imageUrl", imageUrl);
+                        }
+                    });
+                }
+            });
+            selectedImageUri = null;
+            findViewById(R.id.added_image_container).setVisibility(View.GONE);
+        }
 
         reference.child("Chats").child(chatId).push().setValue(map);
 
@@ -370,12 +390,12 @@ public class MessageActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK) {
-            final Uri selectedImageUri = data.getData();
-            selectedImageUrl = selectedImageUri.toString();
+            selectedImageUri = data.getData();
+            String imageUrl = selectedImageUri.toString();
             final RelativeLayout container = findViewById(R.id.added_image_container);
             container.setVisibility(View.VISIBLE);
             final ImageView selectedImage = findViewById(R.id.selected_image);
-            Picasso.with(this).load(selectedImageUri).into(selectedImage);
+            Picasso.with(this).load(imageUrl).into(selectedImage);
 
             sendButton.setEnabled(true);
             sendButton.setBackgroundResource(R.drawable.ic_send_btn);
@@ -387,7 +407,7 @@ public class MessageActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     selectedImage.setImageResource(0);
                     container.setVisibility(View.GONE);
-                    selectedImageUrl = null;
+                    selectedImageUri = null;
                     if (messageEditText.getText().toString().equals("")) {
                         sendButton.setEnabled(false);
                         sendButton.setBackgroundResource(R.drawable.ic_send_btn_off);
