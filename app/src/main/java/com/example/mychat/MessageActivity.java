@@ -2,6 +2,7 @@ package com.example.mychat;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,11 +10,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -34,6 +39,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,21 +55,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
+    private static final int RC_PHOTO_PICKER =  2;
 
-    CircleImageView profileImage;
-    TextView username;
+    private CircleImageView profileImage;
+    private TextView username;
 
-    FirebaseUser firebaseUser;
-    DatabaseReference databaseReference;
+    private FirebaseUser firebaseUser;
+    private DatabaseReference databaseReference;
+    private StorageReference storageReference;
 
-    Button sendButton;
-    EditText messageEditText;
+    private Button sendButton;
+    private ImageButton photoPickerButton;
+    private EditText messageEditText;
 
     private ListView messagesListView;
     private MessageAdapter messageAdapter;
     private ArrayList<Message> messages;
     private String chatId = "";
     String otherUserId;
+
+    private String selectedImageUrl = null;
 
     ValueEventListener seenListener;
 
@@ -90,6 +103,7 @@ public class MessageActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
         sendButton = findViewById(R.id.sendButton);
+        photoPickerButton = findViewById(R.id.photoPickerButton);
         messageEditText = findViewById(R.id.messageEditText);
 
         Intent intent= getIntent();
@@ -107,7 +121,7 @@ public class MessageActivity extends AppCompatActivity {
             chatId += firebaseUser.getUid();
         }
 
-        // Enable Send button when there's text to send
+        // Enable Send button when there's text to send or selected image
         messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -115,7 +129,7 @@ public class MessageActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.toString().trim().length() > 0) {
+                if (charSequence.toString().trim().length() > 0 || selectedImageUrl != null) {
                     sendButton.setEnabled(true);
                     sendButton.setBackgroundResource(R.drawable.ic_send_btn);
                 } else {
@@ -137,6 +151,18 @@ public class MessageActivity extends AppCompatActivity {
                 Log.v("MessageActivity.java", "message sent to user with id : "+ otherUserId);
                 sendMessage(firebaseUser.getUid(), otherUserId, message);
                 messageEditText.setText("");
+            }
+        });
+
+        storageReference = FirebaseStorage.getInstance().getReference().child("ChatsPhotos");
+        // to open image picker
+        photoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
             }
         });
 
@@ -338,6 +364,55 @@ public class MessageActivity extends AppCompatActivity {
         HashMap<String, Object> map = new HashMap<>();
         map.put("status", status);
         databaseReference.updateChildren(map);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK) {
+            final Uri selectedImageUri = data.getData();
+            selectedImageUrl = selectedImageUri.toString();
+            final RelativeLayout container = findViewById(R.id.added_image_container);
+            container.setVisibility(View.VISIBLE);
+            final ImageView selectedImage = findViewById(R.id.selected_image);
+            Picasso.with(this).load(selectedImageUri).into(selectedImage);
+
+            sendButton.setEnabled(true);
+            sendButton.setBackgroundResource(R.drawable.ic_send_btn);
+
+            // if close ,, empty the imageview & layout is gone
+            Button close = findViewById(R.id.close_image_button);
+            close.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    selectedImage.setImageResource(0);
+                    container.setVisibility(View.GONE);
+                    selectedImageUrl = null;
+                    if (messageEditText.getText().toString().equals("")) {
+                        sendButton.setEnabled(false);
+                        sendButton.setBackgroundResource(R.drawable.ic_send_btn_off);
+                    }
+                }
+            });
+
+
+            /*
+            final StorageReference photoRef = storageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    photoRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Log.v("MessageActivity.class", "Upload a new Image with url : " + uri.toString());
+                            String imageUrl = uri.toString();
+                        }
+                    });
+                }
+            });
+
+             */
+        }
     }
 
     @Override
