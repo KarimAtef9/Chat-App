@@ -222,7 +222,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     private void sendMessage(String sender, final String receiver, final String message) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
         String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
@@ -245,15 +245,19 @@ public class MessageActivity extends AppCompatActivity {
                             Log.v("MessageActivity.class", "Upload a new Image with url : " + uri.toString());
                             String imageUrl = uri.toString();
                             map.put("imageUrl", imageUrl);
+                            reference.child("Chats").child(chatId).push().setValue(map);
                         }
                     });
                 }
             });
             selectedImageUri = null;
             findViewById(R.id.added_image_container).setVisibility(View.GONE);
+        } else {
+            map.put("imageUrl", "null");
+            reference.child("Chats").child(chatId).push().setValue(map);
         }
 
-        reference.child("Chats").child(chatId).push().setValue(map);
+        //reference.child("Chats").child(chatId).push().setValue(map);
 
         final DatabaseReference chatRef = FirebaseDatabase.getInstance()
                 .getReference("ChatList").child(firebaseUser.getUid()).child(receiver);
@@ -290,8 +294,8 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         // to get current username & send notification to other user
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-        reference.addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User currentUser = dataSnapshot.getValue(User.class);

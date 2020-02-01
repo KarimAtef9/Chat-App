@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.example.mychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,8 +48,24 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     R.layout.left_message, parent, false);
         }
 
-        TextView message = listItemView.findViewById(R.id.message);
-        message.setText(messages.get(position).getMessage());
+        TextView messageTextView = listItemView.findViewById(R.id.message);
+        messageTextView.setText(messages.get(position).getMessage());
+        // if image only ,, remove text place
+        if (messages.get(position).getMessage().equals("")){
+            messageTextView.setVisibility(View.GONE);
+        }
+
+        ImageView imageView = listItemView.findViewById(R.id.message_image);
+        // display image if found
+        if (messages.get(position).getImageUrl().equals("null")) {
+            imageView.setVisibility(View.GONE);
+        } else {
+            Glide.with(imageView.getContext())
+                    .load(messages.get(position).getImageUrl())
+                    .into(imageView);
+        }
+
+
 
         // set time or time and date next to message
         String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
