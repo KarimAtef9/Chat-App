@@ -37,7 +37,7 @@
                 android:layout_marginRight="5dp"
                 android:id="@+id/message"
                 android:textSize="18sp"
-                android:textColor="#2C2222"
+                android:textColor="@color/message_text"
                 android:layout_marginEnd="5dp" />
 
             <TextView
@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="10sp"
-                android:textColor="#2C2222"
+                android:textColor="@color/message_text"
                 android:paddingRight="6dp"
                 android:paddingBottom="6dp"
                 android:maxLines="1"

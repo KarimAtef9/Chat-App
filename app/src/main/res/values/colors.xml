@@ -6,8 +6,9 @@
 
     <color name="clickable_fragment">#A89D88</color>
     <color name="send_off">#CED4EB</color>
-    <color name="right">#FFA8A8</color>
-    <color name="left">#FA5C5C</color>
+    <color name="right">#fdcece</color>
+    <color name="left">#fc9c9c</color>
     <color name="background">#ADBFC4</color>
     <color name="inside_background">#e6e6e6</color>
+    <color name="message_text">#310202</color>
 </resources>
