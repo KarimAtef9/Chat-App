@@ -57,9 +57,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         ImageView imageView = listItemView.findViewById(R.id.message_image);
         // display image if found
-        if (messages.get(position).getImageUrl().equals("null")) {
-            imageView.setVisibility(View.GONE);
-        } else {
+        if (!messages.get(position).getImageUrl().equals("null")) {
+            imageView.setVisibility(View.VISIBLE);
             Glide.with(imageView.getContext())
                     .load(messages.get(position).getImageUrl())
                     .into(imageView);
