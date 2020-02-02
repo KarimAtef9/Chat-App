@@ -1,40 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp">
 
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/profile_image"-->
-<!--        android:layout_width="30dp"-->
-<!--        android:layout_height="30dp"/>-->
 
     <LinearLayout
         android:id="@+id/message_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
+        android:layout_marginRight="40dp"
+        android:layout_alignParentLeft="true"
         android:background="@drawable/left_background">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:maxWidth="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/message"
-            android:textSize="18sp"
-            android:padding="6dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp" />
+        <ImageView
+            android:id="@+id/message_image"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:padding="5dp"
+            android:scaleType="fitXY"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:padding="6dp"
-            android:layout_gravity="bottom"/>
+        <LinearLayout
+            android:layout_gravity="start"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="6dp"
+                android:paddingTop="6dp"
+                android:layout_marginLeft="5dp"
+                android:id="@+id/message"
+                android:textSize="18sp"
+                android:textColor="#2C2222"
+                android:layout_marginStart="5dp" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#2C2222"
+                android:paddingRight="6dp"
+                android:paddingBottom="6dp"
+                android:maxLines="1"
+                android:gravity="right"
+                android:layout_gravity="bottom"/>
+
+        </LinearLayout>
+
+
     </LinearLayout>
-
 
 
     <ImageView

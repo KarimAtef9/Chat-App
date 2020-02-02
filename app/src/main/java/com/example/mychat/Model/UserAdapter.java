@@ -130,6 +130,9 @@ public class UserAdapter extends ArrayAdapter<User> {
                     }
                 }
                 last_message.setText(lastMessage.getMessage());
+                if (lastMessage.getMessage().equals("")) {
+                    last_message.setText("Image");
+                }
                 if (lastMessage.getReceiver().equals(currentUser.getUid()) && !lastMessage.getSeen()) {
                     last_message.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
                     username.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
