@@ -2,5 +2,5 @@
 Simple android chat app 
 
 ### Prerequisites
-- Android SDK v29
+- Android SDK v16
 - Latest Android Build Tools
