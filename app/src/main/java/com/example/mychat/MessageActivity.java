@@ -83,6 +83,9 @@ public class MessageActivity extends AppCompatActivity {
     APIService apiService;
     boolean notify = false;
 
+    private int lastSeenIndex;
+    private int lastUnseenIndex;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -324,8 +327,18 @@ public class MessageActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Message message = snapshot.getValue(Message.class);
                     messages.add(message);
+                    if (message.getSender().equals(firebaseUser.getUid()) && message.getSeen()) {
+                        lastSeenIndex = messages.size()-1;
+                    } else if (message.getSender().equals(firebaseUser.getUid()) && !message.getSeen()){
+                        lastUnseenIndex = messages.size()-1;
+                    }
                 }
                 if (messages != null && !messages.isEmpty()) {
+                    messageAdapter.setLastSeenIndex(lastSeenIndex);
+                    if (messages.size() != lastSeenIndex+1)
+                        messageAdapter.setLastUnseenIndex(lastUnseenIndex);
+                    else
+                        messageAdapter.setLastUnseenIndex(-1);
                     messageAdapter.addAll(messages);
                     Log.v("MessageActivity.java", "Messages adapter updated in onDataChange");
                 }

@@ -1,6 +1,7 @@
 package com.example.mychat.Model;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private ArrayList<Message> messages;
     // required for getting image
 //    private Context mContext;
-    FirebaseUser user;
+    private FirebaseUser user;
+    private int lastSeenIndex;
+    private int lastUnseenIndex;
 
 
     public MessageAdapter(Context context, ArrayList<Message> messages) {
@@ -79,7 +82,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         ImageView seen = listItemView.findViewById(R.id.message_seen);
 
         // check if last message
-        if (position < messages.size()-1) {
+/**        if (position < messages.size()-1) {
             // next message seen
             if (messages.get(position+1).getSeen()) {
                 seen.setImageResource(0);
@@ -98,9 +101,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 seen.setImageResource(R.drawable.ic_not_seen);
             }
         }
-
+**/
+        Log.v("MessageAdapter.java", "Position : "+position+" Last Seen : "+lastSeenIndex+" Last Unseen : "+lastUnseenIndex);
+        if (position == lastSeenIndex) {
+            seen.setImageResource(R.drawable.ic_seen);
+        } else if (position == lastUnseenIndex) {
+            seen.setImageResource(R.drawable.ic_not_seen);
+        } else {
+            seen.setImageResource(0);
+        }
 
 
         return listItemView;
     }
+
+    public void setLastSeenIndex(int lastSeen) {
+        this.lastSeenIndex = lastSeen;
+    }
+
+    public void setLastUnseenIndex(int lastUnseen) {
+        this.lastUnseenIndex = lastUnseen;
+    }
+
 }
