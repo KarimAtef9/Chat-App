@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(MainActivity.this, StartActivity.class);
                 startActivity(intent);
+                finish();
                 return true;
             case R.id.profile:
                 intent = new Intent(MainActivity.this, ProfileActivity.class).

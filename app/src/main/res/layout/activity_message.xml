@@ -73,7 +73,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:layout_gravity="center"
-                android:src="@mipmap/ic_launcher"
+                android:src="@mipmap/ic_logo"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"/>
 

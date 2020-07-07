@@ -95,6 +95,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     private void lastMessage(User lastUser, final TextView last_message, final TextView username,
                              final TextView unread_messages, final TextView timeTextView, final ImageView seenView) {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser == null) return;
         String chatId = "";
         if (currentUser.getUid().compareTo(lastUser.getId()) > 0) {
             chatId += currentUser.getUid();

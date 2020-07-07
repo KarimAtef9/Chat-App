@@ -83,8 +83,8 @@ public class MessageActivity extends AppCompatActivity {
     APIService apiService;
     boolean notify = false;
 
-    private int lastSeenIndex;
-    private int lastUnseenIndex;
+    private int lastSeenIndex = -1;
+    private int lastUnseenIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -360,7 +360,7 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Token token = snapshot.getValue(Token.class);
-                    Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher,
+                    Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_logo,
                             username + " : " + message, "New Message!", otherUserId);
                     Sender sender = new Sender(data, token.getToken());
                     //Log.d("Messaging Activity", "onDataChange SendNotification MessageActivity !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------------------------------");
